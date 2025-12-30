@@ -2,11 +2,11 @@
 
 A custom Home Assistant Lovelace card designed for busy families.
 
-## Current Status: v1.0.8 WORKING ✅
+## Current Status: v1.1.0 WORKING ✅
 
 **Last session:** 2025-12-30
-**Current version:** 1.0.8
-**Version in HA config:** `?v=9`
+**Current version:** 1.1.0
+**Version in HA config:** `?v=10`
 **GitHub:** https://github.com/JowinWaaijer/hass-family-week-viewer
 
 ### What Works
@@ -18,6 +18,7 @@ A custom Home Assistant Lovelace card designed for busy families.
 - ✅ Sections view support with `getGridOptions()`
 - ✅ Grid rows/columns respected by dashboard
 - ✅ Responsive design
+- ✅ Event type filtering (all-day, multi-day, timed)
 
 ## Target Audience
 
@@ -79,6 +80,19 @@ A busy family of 4 seeking to simplify their daily life using Home Assistant. Th
 |--------|----------|---------|-------------|
 | `entity` | Yes | - | Your calendar entity ID (e.g., `calendar.gezin`) |
 | `title` | No | - | Optional title above the week view |
+| `show_all_day_events` | No | `true` | Show all-day events (single day, no time) |
+| `show_multi_day_events` | No | `true` | Show multi-day events |
+| `show_timed_events` | No | `true` | Show events with specific time |
+
+### Example: Only show all-day and multi-day events
+```yaml
+type: custom:family-week-viewer
+entity: calendar.gezin
+title: Onze Week
+show_all_day_events: true
+show_multi_day_events: true
+show_timed_events: false
+```
 
 ## Development
 
@@ -180,9 +194,9 @@ This section tracks key design and technical decisions for future reference.
 
 ## Feature Roadmap
 
-### Planned Features
+### Implemented ✅
 
-#### 1. Event Type Filter
+#### 1. Event Type Filter (v1.1.0)
 Filter welke events worden getoond via YAML configuratie:
 ```yaml
 type: custom:family-week-viewer
@@ -191,6 +205,8 @@ show_all_day_events: true      # Toon hele-dag events
 show_multi_day_events: true    # Toon meerdaagse events
 show_timed_events: false       # Verberg events met specifieke tijd
 ```
+
+### Planned Features
 
 #### 2. Kindvriendelijke Dag-Symbolen
 Symbolen bij elke dag zodat kinderen makkelijk kunnen zien welke dag het is:
@@ -243,4 +259,5 @@ title: Onze Week
 | 1.0.5 | ?v=7 | Fixed: REST API (callApi), getGridOptions(), responsive CSS |
 | 1.0.7 | ?v=8 | Grid debug: public getGridOptions(), console logging, simplified CSS |
 | 1.0.8 | ?v=9 | Grid fix: height 100%, flex layout, overflow handling - WORKING |
+| 1.1.0 | ?v=10 | Feature: Event type filter (show_all_day_events, show_multi_day_events, show_timed_events) |
 

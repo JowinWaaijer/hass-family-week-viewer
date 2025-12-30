@@ -14,6 +14,7 @@ import {
   isToday,
   formatTime,
   eventFallsOnDate,
+  getEventType,
 } from './utils/date-utils';
 
 class FamilyWeekViewer extends LitElement {
@@ -102,11 +103,38 @@ class FamilyWeekViewer extends LitElement {
     }
   }
 
+  // Check if an event should be shown based on config filters
+  private _shouldShowEvent(event: CalendarEvent): boolean {
+    if (!this._config) return true;
+
+    const eventType = getEventType(event);
+
+    // All filters default to true if not specified
+    const showAllDay = this._config.show_all_day_events !== false;
+    const showMultiDay = this._config.show_multi_day_events !== false;
+    const showTimed = this._config.show_timed_events !== false;
+
+    switch (eventType) {
+      case 'all-day':
+        return showAllDay;
+      case 'multi-day':
+        return showMultiDay;
+      case 'timed':
+        return showTimed;
+      default:
+        return true;
+    }
+  }
+
   // Get events for a specific day
   private _getEventsForDay(date: Date): CalendarEvent[] {
     return this._events
-      .filter((event) => eventFallsOnDate(event, date))
-      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+      .filter((event) => this._shouldShowEvent(event) && eventFallsOnDate(event, date))
+      .sort((a, b) => {
+        const aStart = a.start.dateTime || a.start.date || '';
+        const bStart = b.start.dateTime || b.start.date || '';
+        return new Date(aStart).getTime() - new Date(bStart).getTime();
+      });
   }
 
   // Render the card
@@ -179,7 +207,7 @@ class FamilyWeekViewer extends LitElement {
 }
 
 // Version info
-const CARD_VERSION = '1.0.8';
+const CARD_VERSION = '1.1.0';
 
 // Log version to console
 console.info(

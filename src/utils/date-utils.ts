@@ -72,6 +72,76 @@ export function formatTime(start: { dateTime?: string; date?: string }): string 
   return '';
 }
 
+// Event type for filtering
+export type EventType = 'all-day' | 'multi-day' | 'timed';
+
+/**
+ * Check if an event is an all-day event (single day, no specific time)
+ */
+export function isAllDayEvent(
+  event: { start: { dateTime?: string; date?: string }; end: { dateTime?: string; date?: string } }
+): boolean {
+  // All-day events use the date field, not dateTime
+  if (!event.start.date) {
+    return false;
+  }
+  // Check if it spans only one day
+  const startDate = dayjs(event.start.date);
+  const endDate = dayjs(event.end.date);
+  // All-day events have exclusive end date, so 1 day = end is start + 1
+  return endDate.diff(startDate, 'day') === 1;
+}
+
+/**
+ * Check if an event spans multiple days
+ */
+export function isMultiDayEvent(
+  event: { start: { dateTime?: string; date?: string }; end: { dateTime?: string; date?: string } }
+): boolean {
+  const startStr = event.start.dateTime || event.start.date;
+  const endStr = event.end.dateTime || event.end.date;
+
+  if (!startStr || !endStr) {
+    return false;
+  }
+
+  const startDate = dayjs(startStr);
+  const endDate = dayjs(endStr);
+
+  // For all-day events (date field), end is exclusive
+  if (event.start.date && event.end.date) {
+    return endDate.diff(startDate, 'day') > 1;
+  }
+
+  // For timed events, check if they span different days
+  return !startDate.isSame(endDate, 'day');
+}
+
+/**
+ * Check if an event has a specific time (not all-day)
+ */
+export function isTimedEvent(
+  event: { start: { dateTime?: string; date?: string }; end: { dateTime?: string; date?: string } }
+): boolean {
+  // Timed events use dateTime field and don't span multiple days
+  return !!event.start.dateTime && !isMultiDayEvent(event);
+}
+
+/**
+ * Get the type of an event
+ */
+export function getEventType(
+  event: { start: { dateTime?: string; date?: string }; end: { dateTime?: string; date?: string } }
+): EventType {
+  if (isMultiDayEvent(event)) {
+    return 'multi-day';
+  }
+  if (isAllDayEvent(event)) {
+    return 'all-day';
+  }
+  return 'timed';
+}
+
 /**
  * Check if an event falls on a specific date
  * Handles both timed events (dateTime) and all-day events (date)

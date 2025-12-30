@@ -33,6 +33,10 @@ export interface FamilyWeekViewerConfig {
   type: string;
   entity: string;
   title?: string;
+  // Event type filters (all default to true)
+  show_all_day_events?: boolean;
+  show_multi_day_events?: boolean;
+  show_timed_events?: boolean;
 }
 
 // Calendar event from Home Assistant REST API
