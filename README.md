@@ -2,19 +2,22 @@
 
 A custom Home Assistant Lovelace card designed for busy families.
 
-## Current Status: v1.0.7 TESTING
+## Current Status: v1.0.8 WORKING ✅
 
 **Last session:** 2025-12-30
-**Current version:** 1.0.7
-**Version in HA config:** `?v=8`
+**Current version:** 1.0.8
+**Version in HA config:** `?v=9`
+**GitHub:** https://github.com/JowinWaaijer/hass-family-week-viewer
 
-Testing in v1.0.7:
-- `public getGridOptions()` met `rows: 4` en console logging
-- CSS vereenvoudigd (geen height/min-height conflicten)
-
-Fixed in v1.0.5:
-- Events load correctly (switched from WebSocket to REST API)
-- Added `getGridOptions()` for sections view support
+### What Works
+- ✅ Week view with 7 columns (Monday-Sunday)
+- ✅ Dutch day names
+- ✅ Calendar events from Home Assistant REST API
+- ✅ All-day and timed events display correctly
+- ✅ Today highlighting (blue column)
+- ✅ Sections view support with `getGridOptions()`
+- ✅ Grid rows/columns respected by dashboard
+- ✅ Responsive design
 
 ## Target Audience
 
@@ -144,28 +147,74 @@ This section tracks key design and technical decisions for future reference.
 
 ### Session 2 (2025-12-30)
 **What we did:**
+
+**v1.0.5 - Events fix:**
 - Fixed events not showing: switched from WebSocket to REST API (`hass.callApi`)
 - Fixed event data structure: `start`/`end` are now objects with `dateTime` or `date` properties
 - Added `getGridOptions()` method for sections view (12-column grid)
-- Removed fixed `min-width` constraints for better responsiveness
-- Updated to version 1.0.5
+
+**v1.0.6 & v1.0.7 - Grid debugging:**
+- Investigated why `getGridOptions()` wasn't being respected
+- Made method `public`, added console logging
+- Simplified CSS (removed conflicting height/min-height)
+
+**v1.0.8 - Grid fix (WORKING):**
+- Added `height: 100%` to `:host` and `ha-card` so card fills grid cell
+- Added `display: flex` + `flex-direction: column` to `ha-card`
+- Added `flex: 1`, `min-height: 0`, `overflow: auto` to `.week-container`
+- Card now respects grid rows setting and doesn't overflow into other cards
+
+**GitHub setup:**
+- Installed GitHub CLI (`brew install gh`)
+- Created repo: https://github.com/JowinWaaijer/hass-family-week-viewer
+- Tagged v1.0.8
 
 **Root cause analysis:**
 1. **Events issue**: Was using wrong API (`calendar/list_events` via WebSocket). Correct API is REST: `GET /api/calendars/{entity}?start={iso}&end={iso}`
 2. **Response format**: Events have `start.dateTime`/`start.date` (not just `start` as string)
+3. **Grid height issue**: Card content was growing and overflowing. Fix: `height: 100%` on host/card + flex layout + overflow handling
 
 **Sources used:**
 - [Calendar Card Pro](https://github.com/alexpfau/calendar-card-pro) - reference implementation
 - [HA Custom Card Docs](https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card/) - getGridOptions
 
-### Next Steps (for next session)
-**Test v1.0.5:**
-1. Copy `dist/family-week-viewer.js` to Home Assistant `/config/www/`
-2. Update resource URL to `?v=7`
-3. Refresh dashboard, check console for "Calendar events fetched: [...]"
-4. Verify events display correctly
+## Feature Roadmap
 
-**If it works, consider:**
+### Planned Features
+
+#### 1. Event Type Filter
+Filter welke events worden getoond via YAML configuratie:
+```yaml
+type: custom:family-week-viewer
+entity: calendar.gezin
+show_all_day_events: true      # Toon hele-dag events
+show_multi_day_events: true    # Toon meerdaagse events
+show_timed_events: false       # Verberg events met specifieke tijd
+```
+
+#### 2. Kindvriendelijke Dag-Symbolen
+Symbolen bij elke dag zodat kinderen makkelijk kunnen zien welke dag het is:
+
+| Dag | Symbool | Reden |
+|-----|---------|-------|
+| Maandag | 🌙 Maan | **Ma**andag |
+| Dinsdag | 🦕 Dino | **Di**no |
+| Woensdag | 🐕 Hondje | **Wo**ef |
+| Donderdag | ⚡ Bliksem | **Donder** |
+| Vrijdag | 🐦 Vogel | **V**ogel |
+| Zaterdag | 🪚 Zaag | **Za**ag |
+| Zondag | ☀️ Zon | **Zon** |
+
+Configureerbaar via:
+```yaml
+type: custom:family-week-viewer
+entity: calendar.gezin
+show_day_symbols: true   # Toon kindvriendelijke symbolen
+```
+
+---
+
+### Other Ideas
 - Multiple calendar support (color-coded)
 - Week navigation (previous/next week)
 - Card editor for visual configuration
@@ -193,4 +242,5 @@ title: Onze Week
 | 1.0.4 | ?v=4 | WebSocket API + console version logging |
 | 1.0.5 | ?v=7 | Fixed: REST API (callApi), getGridOptions(), responsive CSS |
 | 1.0.7 | ?v=8 | Grid debug: public getGridOptions(), console logging, simplified CSS |
+| 1.0.8 | ?v=9 | Grid fix: height 100%, flex layout, overflow handling - WORKING |
 
